@@ -1,15 +1,11 @@
-
 fname="day9_example.txt"
 fname="input_day9.txt"
 with open(fname) as fp: data = fp.read().splitlines()
 
-tail=[0,0]
-head=[0,0]
-
-def touching():
-    distance=abs(tail[0]-head[0])+abs(tail[1]-head[1])
+def touching(knota,knotb):
+    distance=abs(knota[0]-knotb[0])+abs(knota[1]-knotb[1])
     if distance==2:
-        if (tail[0]==head[0]) or (tail[1]==head[1]):
+        if (knota[0]==knotb[0]) or (knota[1]==knotb[1]):
             return False
         else:
             return True
@@ -25,47 +21,58 @@ def sign(a):
         return -1
     else:
         return
-  
-visited=[]
+
+def vector(fromnode,tonode): 
+    vector=[sign(tonode[0]-fromnode[0]) if (tonode[0] != fromnode[0]) else 0,
+            sign(tonode[1]-fromnode[1]) if (tonode[1] != fromnode[1]) else 0]
+    return vector
+
+def nextknot(knota_nodes): #knotb follows knota
+    knotb_nodes=[[0,0]]
+    for idx in range(1,len(knota_nodes)):
+        knota=knota_nodes[idx]
+        knotb=knotb_nodes[-1]
+       
+        if not touching(knotb,knota):
+            knotb=[knotb[0]+vector(knotb,knota)[0],knotb[1]+vector(knotb,knota)[1]]
+        else:
+            pass
+        knotb_nodes.append(knotb)
+        
+    return(knotb_nodes)
+
+def nvisited(knotsvisited,nknots):
+    for i in range(1,nknots):
+        knotsvisited=nextknot(knotsvisited)
+    setvisited=set()
+    for pos in knotsvisited: setvisited.add(tuple(pos))
+    return(len(setvisited))
+
+knot0=[0,0]
+knotstart=[knot0[:]]
 
 for instruction in data:
     direction = instruction.split(' ')[0]
     nstep = int(instruction.split(' ')[1])
     for i in range(nstep):
+            
+        if direction == "R":
+            knot0[1]+=1
+                
+        elif direction== "L":
+           knot0[1]-=1
+            
+        elif direction== "U":
+           knot0[0]+=1
+            
+        elif direction== "D":
+           knot0[0]-=1
+            
+        else:
+            print('Something wrong')
         
-        if head not in visited: visited.append(head[:])
-                
-        if touching():
-            if direction == "R":
-                tail[1]+=1
-                    
-            elif direction== "L":
-               tail[1]-=1
-                
-            elif direction== "U":
-               tail[0]+=1
-                
-            elif direction== "D":
-               tail[0]-=1
-                
-            else:
-                print('Something wrong')
-        
-       
-        if not touching():
-            if (head[0]==tail[0]) and (head[1]!=tail[1]): #same row
-                head[1]+=sign(tail[1]-head[1])*(abs(tail[1]-head[1])-1)
-            elif (head[0]!=tail[0]) and (head[1]==tail[1]): #same col
-                head[0]+=sign(tail[0]-head[0])*(abs(tail[0]-head[0])-1)
-            elif (head[0]==tail[0]) and (head[1]==tail[1]): #same space
-                bananas=0# do nothing
-            else:
-                if direction=="R" or direction=="L":
-                    head[0]+=sign(tail[0]-head[0])*(abs(tail[0]-head[0])-0)
-                    head[1]+=sign(tail[1]-head[1])*(abs(tail[1]-head[1])-1)
-                if direction=="U" or direction=="D":
-                    head[0]+=sign(tail[0]-head[0])*(abs(tail[0]-head[0])-1)
-                    head[1]+=sign(tail[1]-head[1])*(abs(tail[1]-head[1])-0)
-        
-print('Part 1 solution is', len(visited))      
+        knotstart.append(knot0[:])
+
+print('Part 1 solution is', nvisited(knotstart,2))
+print('Part 2 solution is', nvisited(knotstart,10))
                                                             
