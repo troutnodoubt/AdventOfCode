@@ -76,8 +76,8 @@ def permutation(lst):
             l.append([m] + p)
     return l
 
-def calculatepressure(lst):
-    t=30
+def calculatepressure(lst,t):
+    #t=30
     p_released=0
     for idx in range(1,len(lst)):
         t-=distancedict[(lst[idx-1],lst[idx])]+1
@@ -135,12 +135,12 @@ plow=permutation(lowflow)
 print('permutations complete')
 print(len(phigh),len(plow))
 print('possible combinations',len(phigh)*len(plow))
-
+time=30
 for h in phigh:
     for l in plow:
         candidate=['AA',*h,*l]
-        if calculatepressure(candidate) > score: 
-            score = calculatepressure(candidate)
+        if calculatepressure(candidate,time) > score: 
+            score = calculatepressure(candidate,time)
             # print()
             # print(score)
         
@@ -160,3 +160,56 @@ print('Part 1 solution is', score)
 # So then it's just a question of finding the right distribution.
 # Genetic algorithm on the selection vector??
 
+# Or, it might not be too costly to roll all of the scenarios. Let's try
+
+# make a mask to divide the valves roughly in two
+
+mask=[]
+
+for i in range(2**len(valvelist)):
+    binmask=bin(i,)
+    pad=0
+    if len(binmask[2:])<len(valvelist): # need to pad zeros
+        pad=len(valvelist)-len(binmask[2:])
+    if binmask.count('1')==len(valvelist)//2:
+        currentmask=[int(bit) for bit in binmask[2:]]
+        for p in range(pad):
+            currentmask.insert(0,0)
+        mask.append(currentmask)
+        # print(binmask)
+        # print(currentmask)
+
+# iterate part 1 solution over all masks
+score=0
+time=26
+for m in mask:
+    mypath=[]
+    elephantpath=[]
+    for idx in range(len(m)):
+        if m[idx]==1:
+            mypath.append(valvelist[idx])
+        elif m[idx]==0:
+            elephantpath.append(valvelist[idx])
+        else:
+            print('oh dear')
+    mypath.insert(0,'AA')
+    elephantpath.insert(0,'AA')
+    # print(m)
+    # print(valvelist)
+    # print(mypath)
+    # print(elephantpath)
+    myperms=permutation(mypath)
+    eleperms=permutation(elephantpath)
+    for mp in myperms:
+        for ep in eleperms:
+            newscore=calculatepressure(mp, time)+calculatepressure(ep, time)
+            if newscore>score:
+                # savemy=mp.copy()
+                # saveele=ep.copy()
+                score=newscore
+
+print('Part 2 solution is', score)
+
+
+# correct mypath is JJ, BB, CC
+# correct elepath is DD, HH, EE
