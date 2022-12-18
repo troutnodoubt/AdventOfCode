@@ -155,3 +155,8 @@ print('Part 1 solution is', score)
 # relevant nodes and the table of distances between them.
 # Use winning solution from part 1 as a seed value.
 
+# Or, with the list of possible valves cut in half, each list can be rapidly
+# iterated entirely to find the best sublist order.
+# So then it's just a question of finding the right distribution.
+# Genetic algorithm on the selection vector??
+
