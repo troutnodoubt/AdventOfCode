@@ -53,7 +53,7 @@ def distance(start,finish):
     return(dijkstra(g, valvedict[start])[valvedict[finish]])
     del(g)
        
-def permutation(lst):
+def permutation(lst): # permutation function stolen from the web somewhere
     # If lst is empty then there are no permutations
     if len(lst) == 0:
         return []
@@ -85,7 +85,17 @@ def calculatepressure(lst,t):
         p_released+=t*valves[lst[idx]].rate
     return(p_released)
     
-  
+def optimizepath(lst,ti):
+    perms=permutation(lst)
+    #print(perms)
+    pscore=0
+    for p in perms:
+        cand=['AA', *p]
+        newpscore=calculatepressure(cand,ti)
+        if newpscore>pscore: 
+            pscore=newpscore
+    return(pscore)
+    
 
 # create index dictionary for use in dijkstra
 index=0
@@ -120,47 +130,35 @@ permutecount=0
 score=0
 
 # separate into two lists based on size to reduce number of permutations
-# threshold=10
-# highflow=[]
-# lowflow=[]
-# for v in valvelist:
-#     if valves[v].rate >= threshold:
-#         highflow.append(v)
-#     else:
-#         lowflow.append(v)
+threshold=10
+highflow=[]
+lowflow=[]
+for v in valvelist:
+    if valves[v].rate >= threshold:
+        highflow.append(v)
+    else:
+        lowflow.append(v)
 
-# phigh=permutation(highflow)
-# plow=permutation(lowflow)
+phigh=permutation(highflow)
+plow=permutation(lowflow)
 
-# print('permutations complete')
-# print(len(phigh),len(plow))
-# print('possible combinations',len(phigh)*len(plow))
-# time=30
-# for h in phigh:
-#     for l in plow:
-#         candidate=['AA',*h,*l]
-#         if calculatepressure(candidate,time) > score: 
-#             score = calculatepressure(candidate,time)
-#             print()
-#             print(score)
+print('permutations complete')
+print(len(phigh),len(plow))
+print('possible combinations',len(phigh)*len(plow))
+time=30
+for h in phigh:
+    for l in plow:
+        candidate=['AA',*h,*l]
+        if calculatepressure(candidate,time) > score: 
+            score = calculatepressure(candidate,time)
+            print()
+            print(score)
         
 #1206 too low (high/low threshold at 15)
 #1219 too low (threshold at 13)
 #1460 is right!! (threshold at 10)
 
 print('Part 1 solution is', score)  
-
-# Might be easier to set part 2 up in Excel and manually manipulate the order
-# and view changes in real time. use this program to generate the list of
-# relevant nodes and the table of distances between them.
-# Use winning solution from part 1 as a seed value.
-
-# Or, with the list of possible valves cut in half, each list can be rapidly
-# iterated entirely to find the best sublist order.
-# So then it's just a question of finding the right distribution.
-# Genetic algorithm on the selection vector??
-
-# Or, it might not be too costly to roll all of the scenarios. Let's try
 
 # make a mask to divide the valves roughly in two
 
@@ -176,8 +174,6 @@ for i in range(2**len(valvelist)):
         for p in range(pad):
             currentmask.insert(0,0)
         mask.append(currentmask)
-        # print(binmask)
-        # print(currentmask)
 
 # iterate part 1 solution over all masks
 score=0
@@ -193,73 +189,21 @@ for m in mask:
             elephantpath.append(valvelist[idx])
         else:
             print('oh dear')
-    #mypath.insert(0,'AA')
-    #elephantpath.insert(0,'AA')
-    # print(m)
-    # print(valvelist)
-    # print(mypath)
-    # print(elephantpath)
-    # separate into two lists based on size to reduce number of permutations
-    threshold=7
-    myhighflow=[]
-    mylowflow=[]
-    for v in mypath:
-        if valves[v].rate >= threshold:
-            myhighflow.append(v)
-        else:
-            mylowflow.append(v)
 
-    myphigh=permutation(myhighflow)
-    myplow=permutation(mylowflow)
-
-    # print('permutations complete')
-    # print(len(myphigh),len(myplow))
-    # print('possible combinations',len(myphigh)*len(myplow))
-    myperms=[]
-    for h in myphigh:
-        for l in myplow:
-            myperms.append([*h,*l])
-            
-    elehighflow=[]
-    elelowflow=[]
-    for v in elephantpath:
-        if valves[v].rate >= threshold:
-            elehighflow.append(v)
-        else:
-            elelowflow.append(v)
-
-    elephigh=permutation(elehighflow)
-    eleplow=permutation(elelowflow)
-
-    # print('permutations complete')
-    # print(len(myphigh),len(myplow))
-    # print('possible combinations',len(myphigh)*len(myplow))
-    eleperms=[]
-    for h in elephigh:
-        for l in eleplow:
-            eleperms.append([*h,*l])        
-            
+    count+=1
     
-    #myperms=permutation(mypath)
-    #eleperms=permutation(elephantpath)
-    for mp in myperms:
-        mycandidate=['AA', *mp]
-        for ep in eleperms:
-            count+=1
-            elecandidate=['AA',*ep]
-            newscore=calculatepressure(mycandidate, time)+calculatepressure(elecandidate, time)
-            if newscore>score:
-                # savemy=mp.copy()
-                # saveele=ep.copy()
-                print(mycandidate)
-                print(elecandidate)
-                score=newscore
-                print('New potential solution',score)
-                print('Completed',count,'of', len(mask)*len(myperms)*len(eleperms))
-                print('~(',100*count/(len(mask)*len(myperms)*len(eleperms)),'%)')
+    myscore=optimizepath(mypath, time)
+
+    elescore=optimizepath(elephantpath, time)
+            
+    newscore=elescore+myscore
+    
+    if newscore>score:
+        score=newscore
+        print('New potential solution',score)
+        print('Completed',count,'of', len(mask))
 
 print('Part 2 solution is', score)
-
 
 # correct mypath is JJ, BB, CC
 # correct elepath is DD, HH, EE
