@@ -30,6 +30,7 @@ for line in data:
         dig1=int(dig1)
     else:
         dig1=vals[dig1]
+        
     if len(dig2)==1: 
         dig2=int(dig2)
     else:
