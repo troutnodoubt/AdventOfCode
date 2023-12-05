@@ -15,17 +15,19 @@ def getMaps():
             newmap.append([int(x) for x in line.split(' ')])
     return newmap
 
-def getRanges(maps):
-    rng={}
-    for line in maps:
-        for i in range(line[2]):
-            rng[line[1]+i]=line[0]+i
-    return rng
-
 def nextIdx(idx,maps):
     for line in maps:
         if idx in range(line[1],line[1]+line[2]):
             nextidx=line[0]+idx-line[1]
+            break
+        else:
+            nextidx=idx
+    return nextidx
+
+def prevIdx(idx,maps):
+    for line in maps:
+        if idx in range(line[0],line[0]+line[2]):
+            nextidx=line[1]+idx-line[0]
             break
         else:
             nextidx=idx
@@ -67,31 +69,24 @@ for seed in seeds:
 
 print('Part 1 solution', seedloc)
 
-maxseed=0
-maxseed=max(maxseed,findMaxVal(seed2soilmap))
-maxseed=max(maxseed,findMaxVal(soil2fertmap))
-maxseed=max(maxseed,findMaxVal(fert2watermap))
-maxseed=max(maxseed,findMaxVal(water2lightmap))
-maxseed=max(maxseed,findMaxVal(light2tempmap))
-maxseed=max(maxseed,findMaxVal(temp2humidmap))
-maxseed=max(maxseed,findMaxVal(humid2locmap))
+maxloc=0
+for line in humid2locmap:
+    if line[0]>maxloc: maxloc=line[0]
 
-seedloc=math.inf
-for i in range(0,len(seeds),2):
-    extraseeds=range(seeds[i],seeds[i]+seeds[i+1])
-    print(i,len(seeds),extraseeds)
-    print(maxseed)
-    for seed in extraseeds:
-        if seed>maxseed: 
-            print('broken')
-            break
-        soil=nextIdx(seed,seed2soilmap)
-        fert=nextIdx(soil,soil2fertmap)
-        water=nextIdx(fert,fert2watermap)
-        light=nextIdx(water,water2lightmap)
-        temp=nextIdx(light,light2tempmap)
-        humid=nextIdx(temp,temp2humidmap)
-        loc=nextIdx(humid,humid2locmap)
-        if loc<seedloc: seedloc=loc
-        
-print('Part 2 solution', seedloc)
+found=False
+for loc in range(maxloc):
+    humid=prevIdx(loc, humid2locmap)
+    temp=prevIdx(humid, temp2humidmap)
+    light=prevIdx(temp, light2tempmap)
+    water=prevIdx(light, water2lightmap)
+    fert=prevIdx(water, fert2watermap)
+    soil=prevIdx(fert, soil2fertmap)
+    seed=prevIdx(soil, seed2soilmap)
+    for i in range(0,len(seeds),2):
+        extraseeds=range(seeds[i],seeds[i]+seeds[i+1])
+        if seed in extraseeds:
+           print('Part 2 solution', loc)
+           found=True
+           break
+    if found: break
+ 
