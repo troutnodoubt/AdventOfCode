@@ -17,7 +17,6 @@ def findNWinners(t,distance):
 
 def list2str(l):
     temp=[str(x) for x in l]
-    print(temp)
     res=''
     for s in temp: res=res+s
     return int(res)
