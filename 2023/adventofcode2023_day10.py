@@ -2,7 +2,7 @@ from queue import PriorityQueue
 from numpy import inf
 
 fname='input_day10.txt'
-fname='example_day10.txt'
+#fname='example_day10.txt'
 #fname='example_day10a.txt'
 with open(fname) as fp: data = fp.read().splitlines()
 
@@ -152,6 +152,15 @@ for vert in D.keys():
 #print('Part 2 is', count) # close, need to only count horizontal lines in y and vertical lines in x. Maybe
 
 coords=[(vert//len(data[0]),vert%len(data[0])) for vert in D[maxvert][1][:-1]]
+
+count=0
+for i in range(len(data)):
+    for j in range(len(data[0])):
+        if (i,j) not in coords:
+            if point_in_polygon(coords, (i,j)): count+=1
+
+print('Part 2 is', count)
+
 
 #part 2 pseudocode doesn't work
 
