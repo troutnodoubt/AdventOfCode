@@ -1,5 +1,5 @@
 import re
-from itertools import permutations
+from itertools import permutations, product
 
 fname='input_day12.txt'
 fname='example_day12.txt'
@@ -37,6 +37,45 @@ def checkPositions(rec1,pattern):
         else: match.append(False)
     return all(match)
 
+def findCandidates(rec1, rec2): # make the bars be any known string. will have bars, hash, and dots to permutate
+    nhashneeded=sum(rec2)
+    nhashhas=rec1.count('#')
+    nhashtoadd=nhashneeded-nhashhas
+    openspots=rec1.count('?')
+    ndots=openspots-nhashtoadd
+    bars=re.split('\?+',rec1)
+    bins=re.findall('\?+',rec1)
+    balls=ndots*'.' + nhashtoadd*'#'
+    for bar in bars:
+        if bar=='': bars.remove('')
+    # print(bars)
+   # base=ndots*'.' + nhashtoadd*'#' + len(bars)*'|'
+    # print(bins)
+    # print(balls)
+    cand={}
+    for b in bins:
+        perms=permutations(balls,len(b))
+        cand[b]=set([''.join(p) for p in perms])
+    
+    return cand
+    
+    # print(rec1)
+    # for key in cand.keys():
+    #     print('*** ', key, ' ***' )
+    #     for s in cand[key]: print(s)
+    # print()
+    
+    
+        
+    # perms = permutations(base)
+    # permlist=[]
+    # for perm in perms:
+    #     pstring=[''.join(p) for p in perm][0]
+    #     if '||' not in pstring: permlist.append(pstring)
+    # permutation = [''.join(p) for p in permutations(base)]
+    #print(permutation)
+    
+
 bigcount=0
 for line in data:
     #r1=re.split('\.+',line.split(' ')[0])
@@ -46,18 +85,27 @@ for line in data:
         if s=='': r1.remove(s)
     print(r1)
     print(r2)
-    r1test = seedRecord(r1, r2)
-    # print(r1test)
-    # #doCountsMatch=checkHashNumber(r1test,r2)
-    # print(doCountsMatch)
-    # #doPatternsMatch=checkPositions(r1test,r1)
-    # print(doPatternsMatch)
-    # print()
-    permutation = [''.join(p) for p in permutations(r1test)]
-    count=0
-    for cand in permutation:
-        if checkPositions(cand,r1) and checkHashNumber(cand, r2): count+=1
-    bigcount+=count
+    c=findCandidates(r1, r2)
+    
+    # make lists of equal length for the bins and the the bars, adding padding on the beginning or the end depending on who goes first
+    # padding can be empty strings or a nonsense character that is stripped out later
+    # then should be able to use a common index to build the test string
+    
+    
+    
+    
+    # r1test = seedRecord(r1, r2)
+    # # print(r1test)
+    # # #doCountsMatch=checkHashNumber(r1test,r2)
+    # # print(doCountsMatch)
+    # # #doPatternsMatch=checkPositions(r1test,r1)
+    # # print(doPatternsMatch)
+    # # print()
+    # permutation = [''.join(p) for p in permutations(r1test)]
+    # count=0
+    # for cand in permutation:
+    #     if checkPositions(cand,r1) and checkHashNumber(cand, r2): count+=1
+    # bigcount+=count
     
 #make bigger string chunks, equal to the size of the arrays. Permute on the chunks rather than the individual characters
  
