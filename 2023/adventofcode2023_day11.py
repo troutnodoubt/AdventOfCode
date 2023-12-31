@@ -1,42 +1,47 @@
-import math
-
 fname='input_day11.txt'
-fname='example_day11.txt'
+# fname='example_day11.txt'
 with open(fname) as fp: data = fp.read().splitlines()
+       
+galaxies={}
+ngalaxy=0
+for i,row in enumerate(data):
+    for j,c in enumerate(row):
+        if c=='#':
+            galaxies[ngalaxy]=(i,j)
+            ngalaxy+=1
 
-def transposeListofLists(lst):
-    tr_lst=[['' for i in lst] for j in lst[0]]
-    print(tr_lst)
-    for i in range(len(lst)):
-        for j in range(len(lst[0])):
-            tr_lst[j][i]=lst[i][j]
-    return tr_lst
-            
+locs=[loc for loc in galaxies.values()]
+rows=set([i[0] for i in locs])
+cols=set([i[1] for i in locs])
 
-expanded=[] #need to expand columns as well, use numpy
+emptyrows=[i for i in range(len(data)) if i not in rows]
+emptycols=[i for i in range(len(data[0])) if i not in cols]
 
-empty=['.' for i in range(len(data[0]))]
+def findDistance(expand,g0,g1):
+    row0=galaxies[g0][0]
+    row1=galaxies[g1][0]
+    col0=galaxies[g0][1]
+    col1=galaxies[g1][1]
+    
+    expandcount=0
+    for emptyrow in emptyrows:
+        if emptyrow in range(row0,row1) or emptyrow in range(row1,row0): expandcount+=1
+    rowdist=abs(row1-row0)+expandcount*(expand-1)
+    
+    expandcount=0
+    for emptycol in emptycols:
+        if emptycol in range(col0,col1) or emptycol in range(col1,col0): expandcount+=1
+    coldist=abs(col1-col0)+expandcount*(expand-1)
+    
+    return rowdist+coldist
 
-
-universe=0
-universelocs={}
-for i,line in enumerate(data):
-    if '#' not in line:
-        expanded.append(empty)
-        expanded.append(empty)
-    else:
-        linecopy=[]
-        j=0
-        for c in line:
-            if c=='#':
-                linecopy.append(str(universe))
-                universelocs[universe]=(i,j)
-                universe+=1
-            else:
-                linecopy.append(c)
-            j+=1
-        expanded.append(linecopy)
+def findTotal(exp):
+    total=0
+    for i in range(len(galaxies.keys())-1):
+        for j in range(i+1,len(galaxies.keys())):
+            total+=findDistance(exp,i,j)
+    return total
         
-
-
-# def findDistance()
+print('Part 1 is', findTotal(2))
+print('Part 2 is', findTotal(1000000))    
+    
