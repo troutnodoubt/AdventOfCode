@@ -2,7 +2,7 @@ import re
 from itertools import permutations, product
 
 fname='input_day12.txt'
-fname='example_day12.txt'
+# fname='example_day12.txt'
 with open(fname) as fp: data = fp.read().splitlines()
 
 def seedRecord(rec1,rec2):
@@ -74,19 +74,86 @@ def findCandidates(rec1, rec2): # make the bars be any known string. will have b
     #     if '||' not in pstring: permlist.append(pstring)
     # permutation = [''.join(p) for p in permutations(base)]
     #print(permutation)
+
+# def buildStringList(fixed,cands):
+#     keys=list(cands.keys())
+#     keyidx=0
+#     stringList=[]
+#     for sub in fixed:
+#         if len(sub)!=0:
+#             stringList.append([sub])
+#             if keyidx<len(keys):
+#                 stringList.append(list(cands[keys[keyidx]]))
+#                 keyidx+=1
+#         else:
+#             if keyidx<len(keys):
+#                 stringList.append(list(cands[keys[keyidx]]))
+#                 keyidx+=1
+#     # temp=''.join('stringList['+str(i)+'],' for i in range(len(stringList)))
+#     # print(temp[:-1])
+#     # b=product(eval(temp[:-1]))
+#     b=product(*stringList)
+#     return stringList,b
+
+def buildStringList(pattern,cands):
+    indices=[]
+    stringList=[]
+    iterator=re.finditer('\?+',pattern)
+    for match in iterator: 
+        indices.append(match.span()[0])
+        indices.append(match.span()[1])
+    # print(indices)
+    for i in range(len(indices)-1):
+        stringList.append(pattern[indices[i]:indices[i+1]])
+    if indices[0]!=0:
+        stringList.insert(0,pattern[0:indices[0]])
+    if indices[-1]!=len(pattern):
+        stringList.append(pattern[indices[-1]:])
     
+    print(stringList)
+    
+    buildList=[]
+    for sub in stringList:
+        if sub in cands.keys():
+            buildList.append(list(cands[sub]))
+        else:
+            buildList.append([sub])
+    print(buildList)
+    return buildList,product(*buildList)
+   
+        
+    
+           
+        
+            
+            
 
 bigcount=0
 for line in data:
     #r1=re.split('\.+',line.split(' ')[0])
     r1=line.split(' ')[0]
     r2=eval('[' + line.split(' ')[1] + ']')
+    # r3=re.split('\?+',line.split(' ')[0])
+    # r4=re.finditer('\?+',line.split(' ')[0])
     for s in r1:
         if s=='': r1.remove(s)
     print(r1)
     print(r2)
+    # print(r3)
+    # for match in r4: print(match.span())
+    # print()
     c=findCandidates(r1, r2)
-    
+    # buildStringList(r1,c)
+    # sl,b=buildStringList(r3,c)
+    sl,b=buildStringList(r1,c)
+    # print(sl)
+    for a in b:
+        temp=''.join(c for c in a)
+        print(temp, checkHashNumber(temp,r2), checkPositions(temp,r1))
+        if checkHashNumber(temp,r2) and checkPositions(temp,r1): bigcount+=1
+    print()
+
+print('Part 1 is', bigcount)    
     # make lists of equal length for the bins and the the bars, adding padding on the beginning or the end depending on who goes first
     # padding can be empty strings or a nonsense character that is stripped out later
     # then should be able to use a common index to build the test string
