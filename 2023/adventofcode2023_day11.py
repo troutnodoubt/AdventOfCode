@@ -10,9 +10,8 @@ for i,row in enumerate(data):
             galaxies[ngalaxy]=(i,j)
             ngalaxy+=1
 
-locs=[loc for loc in galaxies.values()]
-rows=set([i[0] for i in locs])
-cols=set([i[1] for i in locs])
+rows=set([i[0] for i in galaxies.values()])
+cols=set([i[1] for i in galaxies.values()])
 
 emptyrows=[i for i in range(len(data)) if i not in rows]
 emptycols=[i for i in range(len(data[0])) if i not in cols]
