@@ -1,26 +1,27 @@
 import re
-from itertools import permutations, product
+# from itertools import permutations, combinations, product
+from more_itertools import distinct_permutations as idp
 
 fname='input_day12.txt'
 # fname='example_day12.txt'
 with open(fname) as fp: data = fp.read().splitlines()
 
-def seedRecord(rec1,rec2):
-    nhashneeded=sum(rec2)
-    nhashhas=rec1.count('#')
-    rec1list=[c for c in rec1]
-    added=0
-    for i in range(len(rec1list)): #range(nhashneeded - nhashhas):
-#        print(i,len(rec1list))
-        if rec1list[i]=='?':
-            rec1list[i]='#'
-            added+=1
-        if added==nhashneeded-nhashhas: break
-    rec1=''
-    for c in rec1list:
-        rec1=rec1+c
-#    print(rec1)
-    return rec1.replace('?','.')
+# def seedRecord(rec1,rec2):
+#     nhashneeded=sum(rec2)
+#     nhashhas=rec1.count('#')
+#     rec1list=[c for c in rec1]
+#     added=0
+#     for i in range(len(rec1list)): #range(nhashneeded - nhashhas):
+# #        print(i,len(rec1list))
+#         if rec1list[i]=='?':
+#             rec1list[i]='#'
+#             added+=1
+#         if added==nhashneeded-nhashhas: break
+#     rec1=''
+#     for c in rec1list:
+#         rec1=rec1+c
+# #    print(rec1)
+#     return rec1.replace('?','.')
     
 def checkHashNumber(rec1,rec2):
     #rec1split=re.split('\.+',rec1)
@@ -37,27 +38,27 @@ def checkPositions(rec1,pattern):
         else: match.append(False)
     return all(match)
 
-def findCandidates(rec1, rec2): # make the bars be any known string. will have bars, hash, and dots to permutate
-    nhashneeded=sum(rec2)
-    nhashhas=rec1.count('#')
-    nhashtoadd=nhashneeded-nhashhas
-    openspots=rec1.count('?')
-    ndots=openspots-nhashtoadd
-    bars=re.split('\?+',rec1)
-    bins=re.findall('\?+',rec1)
-    balls=ndots*'.' + nhashtoadd*'#'
-    for bar in bars:
-        if bar=='': bars.remove('')
-    # print(bars)
-   # base=ndots*'.' + nhashtoadd*'#' + len(bars)*'|'
-    # print(bins)
-    # print(balls)
-    cand={}
-    for b in bins:
-        perms=permutations(balls,len(b))
-        cand[b]=set([''.join(p) for p in perms])
+# def findCandidates(rec1, rec2): # make the bars be any known string. will have bars, hash, and dots to permutate
+#     nhashneeded=sum(rec2)
+#     nhashhas=rec1.count('#')
+#     nhashtoadd=nhashneeded-nhashhas
+#     openspots=rec1.count('?')
+#     ndots=openspots-nhashtoadd
+#     bars=re.split('\?+',rec1)
+#     bins=re.findall('\?+',rec1)
+#     balls=ndots*'.' + nhashtoadd*'#'
+#     for bar in bars:
+#         if bar=='': bars.remove('')
+#     # print(bars)
+#    # base=ndots*'.' + nhashtoadd*'#' + len(bars)*'|'
+#     # print(bins)
+#     # print(balls)
+#     cand={}
+#     for b in bins:
+#         perms=permutations(balls,len(b))
+#         cand[b]=set([''.join(p) for p in perms])
     
-    return cand
+    # return cand
     
     # print(rec1)
     # for key in cand.keys():
@@ -95,31 +96,31 @@ def findCandidates(rec1, rec2): # make the bars be any known string. will have b
 #     b=product(*stringList)
 #     return stringList,b
 
-def buildStringList(pattern,cands):
-    indices=[]
-    stringList=[]
-    iterator=re.finditer('\?+',pattern)
-    for match in iterator: 
-        indices.append(match.span()[0])
-        indices.append(match.span()[1])
-    # print(indices)
-    for i in range(len(indices)-1):
-        stringList.append(pattern[indices[i]:indices[i+1]])
-    if indices[0]!=0:
-        stringList.insert(0,pattern[0:indices[0]])
-    if indices[-1]!=len(pattern):
-        stringList.append(pattern[indices[-1]:])
+# def buildStringList(pattern,cands):
+#     indices=[]
+#     stringList=[]
+#     iterator=re.finditer('\?+',pattern)
+#     for match in iterator: 
+#         indices.append(match.span()[0])
+#         indices.append(match.span()[1])
+#     # print(indices)
+#     for i in range(len(indices)-1):
+#         stringList.append(pattern[indices[i]:indices[i+1]])
+#     if indices[0]!=0:
+#         stringList.insert(0,pattern[0:indices[0]])
+#     if indices[-1]!=len(pattern):
+#         stringList.append(pattern[indices[-1]:])
     
-    print(stringList)
+#     print(stringList)
     
-    buildList=[]
-    for sub in stringList:
-        if sub in cands.keys():
-            buildList.append(list(cands[sub]))
-        else:
-            buildList.append([sub])
-    print(buildList)
-    return buildList,product(*buildList)
+#     buildList=[]
+#     for sub in stringList:
+#         if sub in cands.keys():
+#             buildList.append(list(cands[sub]))
+#         else:
+#             buildList.append([sub])
+#     print(buildList)
+    # return buildList,product(*buildList)
    
         
     
@@ -129,6 +130,7 @@ def buildStringList(pattern,cands):
             
 
 bigcount=0
+springlist=[]
 for line in data:
     #r1=re.split('\.+',line.split(' ')[0])
     r1=line.split(' ')[0]
@@ -137,21 +139,53 @@ for line in data:
     # r4=re.finditer('\?+',line.split(' ')[0])
     for s in r1:
         if s=='': r1.remove(s)
-    print(r1)
-    print(r2)
+    # print(r1)
+    # print(r2)
+    # print(sum(r2),len(r1))
+    # print('nbuckets',len(r2)+1)
+    # print('nballs',len(r1)-sum(r2))
+    base='.'*(len(r1)-sum(r2))+'|'*len(r2)
+    # print(base)
+    perms=idp(base)
+    candidates=[]
+    for perm in perms:
+        # print(perm)
+        pstring=[''.join(p for p in perm)][0]
+        # print(pstring)
+        if '||' not in pstring and pstring not in candidates: 
+            # print(pstring)
+            candidates.append(pstring)
+    # print(candidates)
+    springcount=0
+    for cand in candidates:
+        builtstring=''
+        nhash=[a*'#' for a in r2]
+        
+        # print(nhash)
+        for c in cand:
+            # print(c)
+            if c=='.':
+                builtstring=builtstring+c
+            else:
+                builtstring=builtstring+nhash.pop(0)
+        # print(builtstring)
+        if checkHashNumber(builtstring,r2) and checkPositions(builtstring,r1): 
+            bigcount+=1
+            springcount+=1
+    springlist.append(springcount)
     # print(r3)
     # for match in r4: print(match.span())
     # print()
-    c=findCandidates(r1, r2)
+    # c=findCandidates(r1, r2)
     # buildStringList(r1,c)
     # sl,b=buildStringList(r3,c)
-    sl,b=buildStringList(r1,c)
+    # sl,b=buildStringList(r1,c)
     # print(sl)
-    for a in b:
-        temp=''.join(c for c in a)
-        print(temp, checkHashNumber(temp,r2), checkPositions(temp,r1))
-        if checkHashNumber(temp,r2) and checkPositions(temp,r1): bigcount+=1
-    print()
+#     for a in b:
+#         temp=''.join(c for c in a)
+#         print(temp, checkHashNumber(temp,r2), checkPositions(temp,r1))
+#         if checkHashNumber(temp,r2) and checkPositions(temp,r1): bigcount+=1
+    # print()
 
 print('Part 1 is', bigcount)    
     # make lists of equal length for the bins and the the bars, adding padding on the beginning or the end depending on who goes first
@@ -177,6 +211,61 @@ print('Part 1 is', bigcount)
 #make bigger string chunks, equal to the size of the arrays. Permute on the chunks rather than the individual characters
  
 
- 
+bigcount=0
+foldspringlist=[]
+for line in data:
+    #r1=re.split('\.+',line.split(' ')[0])
+    pattern=line.split(' ')[0]
+    count=eval('[' + line.split(' ')[1] + ']')
+    r1=pattern+'?'+pattern
+    r2=[]
+    for i in range(2):
+        for n in count:
+            r2.append(n)
 
-    
+            
+    # r3=re.split('\?+',line.split(' ')[0])
+    # r4=re.finditer('\?+',line.split(' ')[0])
+    for s in r1:
+        if s=='': r1.remove(s)
+    print(r1)
+    print(r2)
+    # print(sum(r2),len(r1))
+    # print('nbuckets',len(r2)+1)
+    # print('nballs',len(r1)-sum(r2))
+    base='.'*(len(r1)-sum(r2))+'|'*len(r2)
+    # print(base)
+    perms=idp(base)
+    candidates=[]
+    for perm in perms:
+        # print(perm)
+        pstring=[''.join(p for p in perm)][0]
+        # print(pstring)
+        if '||' not in pstring and pstring not in candidates: 
+            # print(pstring)
+            candidates.append(pstring)
+    # print(candidates)
+    foldspringcount=0
+    for cand in candidates:
+        builtstring=''
+        nhash=[a*'#' for a in r2]
+        # print(nhash)
+        for c in cand:
+            # print(c)
+            if c=='.':
+                builtstring=builtstring+c
+            else:
+                builtstring=builtstring+nhash.pop(0)
+        # print(builtstring)
+        if checkHashNumber(builtstring,r2) and checkPositions(builtstring,r1): 
+            bigcount+=1
+            foldspringcount+=1
+    foldspringlist.append(foldspringcount)
+
+bigcount=0
+for i in range(len(springlist)):
+    temp=springlist[i]*(foldspringlist[i]//springlist[i])**4
+    print(temp)
+    bigcount+=temp
+
+print('Part 2 is', bigcount)      
