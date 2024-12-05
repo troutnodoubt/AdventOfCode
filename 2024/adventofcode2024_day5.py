@@ -9,7 +9,7 @@ for row in data:
     if '|' in row: 
         rules.append(tuple(int(a) for a in row.split('|')))
     else:
-        produced.append(list(int(a) for a in row.split(',') if a is not ''))
+        produced.append(list(int(a) for a in row.split(',') if a != ''))
 
 produced=produced[1:]
 
