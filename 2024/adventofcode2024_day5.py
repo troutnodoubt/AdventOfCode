@@ -81,29 +81,35 @@ print(32, rulesdict[32])
 print(25, rulesdict[25])
 print(77, rulesdict[77])
 
+#91 [71, 63, 77, 49, 57, 51, 53, 33, 38, 82, 93, 62, 32, 41, 15, 22, 97, 21, 54, 17, 72, 95, 67, 19]
+#55 [49, 82, 72, 33, 15, 93, 12, 38, 22, 89, 58, 21, 62, 67, 19, 97, 91, 17, 32, 25, 57, 63, 77, 53]
+#32 [24, 21, 93, 62, 51, 72, 41, 71, 19, 95, 17, 53, 57, 65, 37, 67, 38, 44, 97, 13, 31, 79, 54, 22]
+#25 [57, 32, 62, 63, 33, 77, 71, 19, 91, 21, 38, 72, 97, 93, 95, 12, 15, 82, 54, 53, 22, 67, 49, 17]
+#77 [19, 79, 31, 22, 21, 67, 97, 62, 54, 82, 32, 51, 71, 53, 44, 95, 38, 57, 41, 24, 13, 93, 72, 17]
+
 update=[91, 55, 32, 25, 77]
 count=0
 while True:
     count+=1
     for i in range(len(update)-1):
         page=update[i]
-        print(page)
+        #print(page)
         if page in rulesdict.keys():
             followers=rulesdict[page]
-            print('a')
+         #   print('a')
         else:
             update[i],update[i+1]=update[i+1], update[i]
-            print('b')
+           # print('b')
             break
         for nextpage in update[i+1:]:
             if nextpage not in followers: 
-                print(update,i,i+1)
+             #   print(update,i,i+1)
                 
                 update[i],update[i+1]=update[i+1], update[i]
-                print('c')
-        print('end',update)
+             #3   print('c')
+       # print('end',update)
     if isRightOrder(update): break
     if count>100:
-        print("count exceeded")
-        print(update)
+        #print("count exceeded")
+        #print(update)
         break
