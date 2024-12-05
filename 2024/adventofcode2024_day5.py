@@ -62,11 +62,11 @@ for update in needsHelp:
             	tmp=update.pop(i)
             	update.insert(i+1+jmax,tmp)
         if isRightOrder(update): 
-            print('success')
+            #print('success')
             break
         if count>100:
-            print("count exceeded")
-            print(update)
+            #print("count exceeded")
+            #print(update)
             break
     fixed.append(update)
 
