@@ -39,7 +39,6 @@ for i,row in enumerate(data):
         elif c=='.': tmp=tmp+'..'
     doubledata.append(tmp)
 
-
 for i,row in enumerate(doubledata):
     if row=='':
         separator=i
@@ -50,13 +49,7 @@ for i,row in enumerate(doubledata):
         elif c=='@': start=(i,j)
 
 size=(i,j)
-print(len(blocks))
 walls=tuple(walls)
-# print(walls)
-# print(blocks)
-# # print(free)
-# print(start)
-
 
 instructions=[]
 for row in data[separator:]:
@@ -87,7 +80,6 @@ def moveRobot(robotPos,instuction):
         del nextPoslList[:]
         del toRemoveList[:]
         canMoveBlock([nextPos],instruction)
-        print(canMoveList)
         if all(canMoveList): 
             moveBlocks()
             return nextPos
@@ -97,10 +89,7 @@ def moveRobot(robotPos,instuction):
         del nextPoslList[:]
         del toRemoveList[:]
         testPos=(nextPos[0],nextPos[1]-1)
-        # print(testPos)
-        # print()
         canMoveBlock([testPos],instruction) 
-        print(canMoveList)
         if all(canMoveList): 
             moveBlocks()
             return nextPos
@@ -109,37 +98,23 @@ def moveRobot(robotPos,instuction):
         print('ruh roh')
 
 def canMoveBlock(positions,instruction):
-    # canMoveList=[]
-    # nextPoslList=[]
-    # nextPosrList=[]
-    print(positions)
     for pos in positions:
         toRemoveList.append(pos)
         offset=getOffset(instruction)     
-        # nextPos = (pos[0]+offset[0],pos[1]+offset[1])
         canMove=False
         if instruction=='>':
             nextPosl=(pos[0]+offset[0],pos[1]+offset[1]+1)
-            # print(pos,pos in blocks,pos in blocksr)
-            # print(offset)
-            # print(nextPosl,nextPosl in blocks,nextPosl in blocksr)
+
             if nextPosl not in walls and nextPosl not in blocks:
                 canMove=True
             elif nextPosl in walls:
                 canMove=False
             elif nextPosl in blocks:
-                # print('next block right')
                 canMove=canMoveBlock([(nextPosl[0],nextPosl[1]-0)],instruction)
             else: print('something wrong in canmove')
-            # if canMove:
-                # blocks.remove(pos)
-                # blocks.append(nextPosl)
-                # findBlocksr()
-            # return canMove
-            # print(pos,canMove)
-            # canMoveList.append(canMove)
+ 
             nextPoslList.append((pos[0],pos[1]+1))
-            # nextPoslList.append((nextPosl[0],nextPosl[1]-1))
+
         elif instruction=='<':
             nextPosl=(pos[0]+offset[0],pos[1]+offset[1])
             if nextPosl not in walls and nextPosl not in blocksr:
@@ -149,34 +124,14 @@ def canMoveBlock(positions,instruction):
             elif nextPosl in blocksr:
                 canMove=canMoveBlock([(nextPosl[0],nextPosl[1]-1)],instruction)
             else: print('something wrong in canmove')
-            # if canMove:
-            #     print(pos)
-                # blocks.remove(pos)
-                # blocks.append((nextPosl[0],nextPosl[1]+1))
-                # findBlocksr()
-            # return canMove
-            # canMoveList.append(canMove)
             nextPoslList.append(nextPosl)
+
         elif instruction in '^v':
-            # print(pos)
-            # print(offset)
             nextPosl=(pos[0]+offset[0],pos[1]+offset[1])
             nextPosr=(pos[0]+offset[0],pos[1]+offset[1]+1)
-            # print(nextPosl,nextPosr)
-            # test = (pos[0]+offset[0],pos[1]+offset[1])
-            # print(test)
-            # if test in blocks:
-            #     nextPosl=(pos[0]+offset[0],pos[1]+offset[1])
-            #     nextPosr=(pos[0]+offset[0],pos[1]+offset[1]+1)
-            # elif test in blocksr:
-            #     nextPosl=(pos[0]+offset[0],pos[1]+offset[1]-1)
-            #     nextPosr=(pos[0]+offset[0],pos[1]+offset[1])
-            # elif test in walls:
-            #     return False
-            
+
             if nextPosl not in walls and nextPosl not in blocks and nextPosl not in blocksr and nextPosr not in walls and nextPosr not in blocks and nextPosr not in blocksr:
                 canMove=True
-                # canMoveList.append(canMove)
             elif nextPosl in walls or nextPosr in walls:
                 canMove=False
             elif nextPosl in blocks: # directly over/under another block
@@ -187,58 +142,17 @@ def canMoveBlock(positions,instruction):
                 canMove=canMoveBlock([nextPosr],instruction)
             elif nextPosl in blocksr and nextPosr in blocks: # over/under two blocks
                 canMove=canMoveBlock([(nextPosl[0],nextPosl[1]-1),nextPosr],instruction)
-                # canMover=canMoveBlock(nextPosr,instruction)
-                # if canMovel and canMover: canMove=True
-                # else: return
             else: print('something wrong in canmove')
-            # return canMove
-            # canMoveList.append(canMove)
             nextPoslList.append(nextPosl)
-            # print(canMoveList)
-            # print(nextPoslList)
-            # print()
-        print(pos,canMove)
         canMoveList.append(canMove)
-    print(canMoveList)
     return canMove
-    # if all(canMoveList):
-    #     # print(positions)
-    #     # print(nextPoslList)
-    #     # print(canMoveList)
-    #     # print('checking for moves')
-    #     for i,pos in enumerate(positions):
-            
-    #         # print(i,pos)
-    #         # print(pos,nextPoslList[i])
-    #         if pos in blocksr:
-    #             # print('right',pos)
-    #             blocks.remove((pos[0],pos[1]-1))
-    #         else:
-    #             blocks.remove(pos)
-    #         blocks.append(nextPoslList[i])
-    #     findBlocksr()
-    # # print(canMoveList)
-    # # return canMoveList
-    # return all(canMoveList)
 
 def moveBlocks():
-    # print("moving blocks")
-    # print(canMoveList)
-    # print(nextPoslList)
-    # print(toRemoveList)
     tmpnextPoslList=list(set(nextPoslList))
     tmptoRemoveList=list(set(toRemoveList))
     if all(canMoveList):
-        # print(positions)
-        # print(nextPoslList)
-        # print(canMoveList)
-        # print('checking for moves')
         for i,pos in enumerate(tmptoRemoveList):
-            
-            # print(i,pos)
-            # print(pos,nextPoslList[i])
             if pos in blocksr:
-                # print('right',pos)
                 blocks.remove((pos[0],pos[1]-1))
             else:
                 blocks.remove(pos)
@@ -261,7 +175,6 @@ def displayMap():
 robotPos=start
 findBlocksr()
 
-# displayMap()
 startdisplay=0
 enddisplay=20
 for count,instruction in enumerate(instructions):
@@ -273,19 +186,9 @@ for count,instruction in enumerate(instructions):
 
 displayMap()
 total=0
-# total2=0
-# height=separator-1
-# width=len(data[0])*2-1
-# print(len(blocks))
-# print()
-# print(height,width)
-# print()
+
 for i,block in enumerate(blocks):
     total+=100*block[0]+block[1]
-    # total2+=100*min(block[0],height-blocksr[i][0])+min(block[1],width-blocksr[i][1])
-    # print(block[0],height-blocksr[i][0])
-    # print(block[1],width-blocksr[i][1])
-    # print()
 
 print("Total", total) # 1444404 too low, 1449319 too low
 
