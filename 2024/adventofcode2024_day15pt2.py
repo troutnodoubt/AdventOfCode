@@ -11,10 +11,10 @@ fname='input_day15.txt'
 with open(fname) as fp: data = fp.read().splitlines()
 
 # data=['#############',
-#       '#..O..O.O..@#',
+#       '#@..O..O.O..#',
 #       '#############',
 #       '',
-#       '<<<<<<<<<<<<<<<<<<',
+#       '>>>>>>>>>>>>>>>>>>',
 #       '']
 
 walls=[]
@@ -23,6 +23,9 @@ blocksr=[]
 separator=[]
 start=[]
 doubledata=[]
+canMoveList=[]
+nextPoslList=[]
+toRemoveList=[]
 
 for i,row in enumerate(data):
     tmp=''
@@ -80,22 +83,38 @@ def moveRobot(robotPos,instuction):
     elif nextPos in walls:
         return robotPos
     elif nextPos in blocks:
-        if canMoveBlock([nextPos],instruction): return nextPos
+        del canMoveList[:]
+        del nextPoslList[:]
+        del toRemoveList[:]
+        canMoveBlock([nextPos],instruction)
+        print(canMoveList)
+        if all(canMoveList): 
+            moveBlocks()
+            return nextPos
         else: return robotPos
     elif nextPos in blocksr:
+        del canMoveList[:]
+        del nextPoslList[:]
+        del toRemoveList[:]
         testPos=(nextPos[0],nextPos[1]-1)
         # print(testPos)
         # print()
-        if canMoveBlock([testPos],instruction): return nextPos
+        canMoveBlock([testPos],instruction) 
+        print(canMoveList)
+        if all(canMoveList): 
+            moveBlocks()
+            return nextPos
         else: return robotPos
     else:
         print('ruh roh')
 
 def canMoveBlock(positions,instruction):
-    canMoveList=[]
-    nextPoslList=[]
+    # canMoveList=[]
+    # nextPoslList=[]
     # nextPosrList=[]
+    print(positions)
     for pos in positions:
+        toRemoveList.append(pos)
         offset=getOffset(instruction)     
         # nextPos = (pos[0]+offset[0],pos[1]+offset[1])
         canMove=False
@@ -118,7 +137,7 @@ def canMoveBlock(positions,instruction):
                 # findBlocksr()
             # return canMove
             # print(pos,canMove)
-            canMoveList.append(canMove)
+            # canMoveList.append(canMove)
             nextPoslList.append((pos[0],pos[1]+1))
             # nextPoslList.append((nextPosl[0],nextPosl[1]-1))
         elif instruction=='<':
@@ -136,7 +155,7 @@ def canMoveBlock(positions,instruction):
                 # blocks.append((nextPosl[0],nextPosl[1]+1))
                 # findBlocksr()
             # return canMove
-            canMoveList.append(canMove)
+            # canMoveList.append(canMove)
             nextPoslList.append(nextPosl)
         elif instruction in '^v':
             # print(pos)
@@ -163,7 +182,7 @@ def canMoveBlock(positions,instruction):
             elif nextPosl in blocks: # directly over/under another block
                 canMove=canMoveBlock([nextPosl],instruction)
             elif nextPosl in blocksr and nextPosr not in walls and nextPosr not in blocks: #left side over/under right side, right side clear
-                canMove=canMoveBlock([nextPosl],instruction)
+                canMove=canMoveBlock([(nextPosl[0],nextPosl[1]-1)],instruction)
             elif nextPosr in blocks and nextPosl not in walls and nextPosl not in blocksr: #right side over/under left side, left side clear
                 canMove=canMoveBlock([nextPosr],instruction)
             elif nextPosl in blocksr and nextPosr in blocks: # over/under two blocks
@@ -173,17 +192,48 @@ def canMoveBlock(positions,instruction):
                 # else: return
             else: print('something wrong in canmove')
             # return canMove
-            canMoveList.append(canMove)
+            # canMoveList.append(canMove)
             nextPoslList.append(nextPosl)
             # print(canMoveList)
             # print(nextPoslList)
             # print()
+        print(pos,canMove)
+        canMoveList.append(canMove)
+    print(canMoveList)
+    return canMove
+    # if all(canMoveList):
+    #     # print(positions)
+    #     # print(nextPoslList)
+    #     # print(canMoveList)
+    #     # print('checking for moves')
+    #     for i,pos in enumerate(positions):
+            
+    #         # print(i,pos)
+    #         # print(pos,nextPoslList[i])
+    #         if pos in blocksr:
+    #             # print('right',pos)
+    #             blocks.remove((pos[0],pos[1]-1))
+    #         else:
+    #             blocks.remove(pos)
+    #         blocks.append(nextPoslList[i])
+    #     findBlocksr()
+    # # print(canMoveList)
+    # # return canMoveList
+    # return all(canMoveList)
+
+def moveBlocks():
+    # print("moving blocks")
+    # print(canMoveList)
+    # print(nextPoslList)
+    # print(toRemoveList)
+    tmpnextPoslList=list(set(nextPoslList))
+    tmptoRemoveList=list(set(toRemoveList))
     if all(canMoveList):
         # print(positions)
         # print(nextPoslList)
         # print(canMoveList)
         # print('checking for moves')
-        for i,pos in enumerate(positions):
+        for i,pos in enumerate(tmptoRemoveList):
             
             # print(i,pos)
             # print(pos,nextPoslList[i])
@@ -192,11 +242,8 @@ def canMoveBlock(positions,instruction):
                 blocks.remove((pos[0],pos[1]-1))
             else:
                 blocks.remove(pos)
-            blocks.append(nextPoslList[i])
+            blocks.append(tmpnextPoslList[i])
         findBlocksr()
-    # print(canMoveList)
-    # return canMoveList
-    return all(canMoveList)
 
 def displayMap():
     for i in range(size[0]+1):
@@ -226,19 +273,19 @@ for count,instruction in enumerate(instructions):
 
 displayMap()
 total=0
-total2=0
-height=separator-1
-width=len(data[0])*2-1
-print(len(blocks))
+# total2=0
+# height=separator-1
+# width=len(data[0])*2-1
+# print(len(blocks))
 # print()
 # print(height,width)
 # print()
 for i,block in enumerate(blocks):
     total+=100*block[0]+block[1]
-    total2+=100*min(block[0],height-blocksr[i][0])+min(block[1],width-blocksr[i][1])
+    # total2+=100*min(block[0],height-blocksr[i][0])+min(block[1],width-blocksr[i][1])
     # print(block[0],height-blocksr[i][0])
     # print(block[1],width-blocksr[i][1])
     # print()
 
-print("Total", total) # 1444404 too low
-print("Total2", total) # 1444404 too low
+print("Total", total) # 1444404 too low, 1449319 too low
+
