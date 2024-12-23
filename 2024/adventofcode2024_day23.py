@@ -35,10 +35,13 @@ for row in cluster3:
             break
 print('Part 1',tcount)
 
+# Drew a few of the graphs by hand and noticed a pattern
+# This loop helped me identify the pattern and just happens to give the right answer
+# Not sure why it works, but for each connection, if it connects to at least n-1 of the
+# nodes that haven't yet been queried then it's the biggest cycle
 candidatecycles=set()
 for comp in graph.keys():
     cands=graph[comp]
-    possible=len(cands)+1
     # print(comp,'connected to',cands)
     cyclelist={comp}
     test=[]
