@@ -4,25 +4,6 @@ fname='input_day19.txt'
 
 with open(fname) as fp: data = fp.read().splitlines()
 
-data=['r, wr, b, g, bwu, rb, gb, br',
-       '',
-       'brwrr',
-       'bggr',
-       'gbbr',
-       'rrbgbr',
-       'ubwu',
-       'bwurrg',
-       'brgr',
-       'bbrgwb']
-
-# data=['r, wr, b, g, bwu, rb, gb, br',
-#        '',
-#        'rrbgbr']
-
-# data=['abcd, abc, def, ef',
-#       '',
-#       'abcdef']
-
 towels=data[0].split(', ')
 data.pop(0)
 data.pop(0)
@@ -30,7 +11,6 @@ maxsizetocheck=0
 for towel in towels:
     if len(towel)>maxsizetocheck: maxsizetocheck=len(towel)
 
-# print(towels)
 print(maxsizetocheck)
 
 @lru_cache(maxsize=None)
@@ -63,13 +43,14 @@ def isValidPattern(patterntomatch,towels,maxsize,debug=False):
 
 
 possibilities={}
-# @lru_cache(maxsize=None)
+@lru_cache(maxsize=None)
 def isValidPattern2(patterntomatch,towels,maxsize,target,builtpattern='',debug=False):
     size=min(maxsize,len(patterntomatch))
     patterns=[patterntomatch[:size-reduction] for reduction in range(size) if patterntomatch[:size-reduction] in towels]
     visited=[]
     matched=False
     # print(patterns)
+    nmatch=0
     for i,pattern in enumerate(patterns):
         matched=False
         visited.append(pattern)
@@ -86,14 +67,16 @@ def isValidPattern2(patterntomatch,towels,maxsize,target,builtpattern='',debug=F
             print('Built so far         ',builtpattern)
             print('Target pattern       ',target)
             print()
-        matched=isValidPattern2(newpatterntomatch,towels,maxsize,target,builtpattern,debug)
+        nmatch+=isValidPattern2(newpatterntomatch,towels,maxsize,target,builtpattern,debug)
+      
        
         if builtpattern==target: 
             if builtpattern in possibilities.keys(): possibilities[builtpattern]+=1
             else: possibilities[builtpattern]=1
             matched=True
-            # builtpattern=''
-    return matched
+            nmatch=1
+            
+    return nmatch
     
 validpatterns=set()
 invalidpatterns=set()
@@ -106,14 +89,18 @@ print('Part 1',len(validpatterns)) #296 is too low, but is valid answer for some
 
 validpatterns=set()
 invalidpatterns=set()
+total=0
 for i,pattern in enumerate(data):
     print(i+1,'of',len(data))
-    a=isValidPattern2(str(pattern),tuple(towels),maxsizetocheck,str(pattern))
-    if a==True: 
-        validpatterns.add(a)
-
-print(possibilities)
-print('Part 2',sum(possibilities.values()))
+    nmatch=isValidPattern2(str(pattern),tuple(towels),maxsizetocheck,str(pattern))
+    # if a==True: 
+    #     validpatterns.add(a)
+    total+=nmatch
+    print(pattern,nmatch)
+    print()
+# print(possibilities)
+# print('Part 2',sum(possibilities.values()))
+print('Part 2',total)
 
 # Looks like I might have outsmarted myself, maybe
 
