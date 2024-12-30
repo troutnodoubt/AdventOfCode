@@ -1,8 +1,9 @@
 from queue import PriorityQueue
 
 fname='input_day16.txt'
-fname='example_day16a.txt'
+# fname='example_day16a.txt'
 # fname='example_day16b.txt'
+fname='example_day_16c.txt' # extra input
 with open(fname) as fp: data = fp.read().splitlines()
 
 def findNeighbor(node,direction):
@@ -45,44 +46,69 @@ class Graph:
         self.edges[v][u] = distance
         
 def dijkstra(graph, start_vertex):
-    D = {v:float('inf') for v in range(graph.v)}
-    D[start_vertex] = 0
+    D = {v:[[float('inf'),(0,0)]] for v in range(graph.v)}
+    D[start_vertex] = [[0,(0,1)]] #cost, heading
     
     turn=0
     nturns=0
     pq = PriorityQueue()
-    pq.put((0, (0,1), start_vertex, nturns)) # cost, heading, vertex number
+    pq.put((0, start_vertex)) # cost, vertex number
     
     while not pq.empty():
-        (dist, heading, current_vertex,nturns) = pq.get()
+        (dist, current_vertex) = pq.get()
         graph.visited.append(current_vertex)
-
+       
+        # print(current_vertex)
         for neighbor in range(graph.v):
+            
             
             if graph.edges[current_vertex][neighbor] != -1:
                 distance = graph.edges[current_vertex][neighbor]
-                if neighbor not in graph.visited:
-                    
+                if True: #neighbor not in graph.visited:
+                    # print('   ',neighbor)
+                    new_cost=float('inf')
+                   
                     current_i=current_vertex//len(data)
                     current_j=current_vertex%len(data)
                     neighbor_i=neighbor//len(data)
                     neighbor_j=neighbor%len(data)
                     new_heading=((neighbor_i-current_i)//distance,(neighbor_j-current_j)//distance)
-                    
-                    if new_heading!=heading: 
-                        # nturns=1
-                        turn=1000
-                    elif new_heading==heading: turn=0
-                    old_cost = D[neighbor]
-                    new_cost = D[current_vertex] + distance + turn
+                    for idx,option in enumerate(D[current_vertex]): 
+                        # print(D[current_vertex][idx])
+                        tmp_cost,heading=D[current_vertex][idx]
+                        if new_heading!=heading: 
+                            # nturns=1
+                            turn=1000
+                        elif new_heading==heading: turn=0
+                        old_cost,_ = D[neighbor][0]
+                        tmp_cost += distance + turn
+                        if tmp_cost<new_cost: new_cost=tmp_cost
                     # new_cost = D[current_vertex] + distance + nturns*1000
                     
-                    if new_cost < old_cost and new_cost%1000!=old_cost%1000:
+                    # pq.put((new_cost, neighbor))
+                    if new_cost < old_cost:# and new_cost%1000!=old_cost%1000:
                         # print(new_cost,new_heading,neighbor)
                         # print(current_i,current_j,neighbor_i,neighbor_j,heading,new_heading,distance)
                         # print()
-                        pq.put((new_cost, new_heading, neighbor, nturns))
-                        D[neighbor] = new_cost
+                        pq.put((new_cost, neighbor))
+                        # print(pq.queue)
+                        D[neighbor] = [[new_cost,new_heading]]
+                    elif neighbor in D.keys():
+                        D[neighbor].append([new_cost,new_heading])
+                    # elif [*pq.queue]:
+                    #     a=[*pq.queue]
+                    #     test=[pair[1] for pair in a]
+                    #     # print(test)
+                    #     # print(neighbor in test)
+                    #     if neighbor in test:
+                    #         pq.put((new_cost,neighbor))
+                    #         print('extra',pq.queue)
+                    #     # for pair in a:
+                        #     print('pair',pair[1])
+                        #     print(neighbor==pair[1])
+                        # neighbor in [a[1] for a in pq.queue]:
+                        # print(neighbor,'in pq')
+
     return D
 
 nvertices=len(data)*len(data[0])
@@ -123,7 +149,7 @@ for node,_ in enumerate(nodeconnections):
 
 print()
 print(start,end)
-score = dijkstra(g,start)[end]
+score = dijkstra(g,start)[end][0][0]
 print(score) #68432 is too low. 72432, 76432 is too high. I bet I'm double counting turns somehow, so try others in increments of 1000
 #69432, nope
 #70432, nope
