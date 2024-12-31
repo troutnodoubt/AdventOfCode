@@ -3,7 +3,9 @@ from queue import PriorityQueue
 fname='input_day16.txt'
 # fname='example_day16a.txt'
 # fname='example_day16b.txt'
-fname='example_day_16c.txt' # extra input
+# fname='example_day_16c.txt' # extra input
+# fname='example_day_16d.txt' # extra input
+# fname='example_day_16e.txt' # extra input
 with open(fname) as fp: data = fp.read().splitlines()
 
 def findNeighbor(node,direction):
@@ -68,24 +70,22 @@ def dijkstra(graph, start_vertex):
                     # print('   ',neighbor)
                     new_cost=float('inf')
                    
-                    current_i=current_vertex//len(data)
-                    current_j=current_vertex%len(data)
-                    neighbor_i=neighbor//len(data)
-                    neighbor_j=neighbor%len(data)
+                    current_i=current_vertex//len(data[0])
+                    current_j=current_vertex%len(data[0])
+                    neighbor_i=neighbor//len(data[0])
+                    neighbor_j=neighbor%len(data[0])
                     new_heading=((neighbor_i-current_i)//distance,(neighbor_j-current_j)//distance)
                     for idx,option in enumerate(D[current_vertex]): 
-                        # print(D[current_vertex][idx])
+                      
                         tmp_cost,heading=D[current_vertex][idx]
                         if new_heading!=heading: 
-                            # nturns=1
+                            
                             turn=1000
                         elif new_heading==heading: turn=0
                         old_cost,_ = D[neighbor][0]
                         tmp_cost += distance + turn
                         if tmp_cost<new_cost: new_cost=tmp_cost
-                    # new_cost = D[current_vertex] + distance + nturns*1000
-                    
-                    # pq.put((new_cost, neighbor))
+             
                     if new_cost < old_cost:# and new_cost%1000!=old_cost%1000:
                         # print(new_cost,new_heading,neighbor)
                         # print(current_i,current_j,neighbor_i,neighbor_j,heading,new_heading,distance)
@@ -95,20 +95,7 @@ def dijkstra(graph, start_vertex):
                         D[neighbor] = [[new_cost,new_heading]]
                     elif neighbor in D.keys():
                         D[neighbor].append([new_cost,new_heading])
-                    # elif [*pq.queue]:
-                    #     a=[*pq.queue]
-                    #     test=[pair[1] for pair in a]
-                    #     # print(test)
-                    #     # print(neighbor in test)
-                    #     if neighbor in test:
-                    #         pq.put((new_cost,neighbor))
-                    #         print('extra',pq.queue)
-                    #     # for pair in a:
-                        #     print('pair',pair[1])
-                        #     print(neighbor==pair[1])
-                        # neighbor in [a[1] for a in pq.queue]:
-                        # print(neighbor,'in pq')
-
+    
     return D
 
 nvertices=len(data)*len(data[0])
@@ -120,7 +107,7 @@ g=Graph(nvertices)
 
 for i,row in enumerate(data):
     for j,pos in enumerate(row):
-        vertex=i*len(data)+j
+        vertex=i*len(data[0])+j
         if data[i][j]!='#':
             if data[i][j-1]!='#' or data[i][j+1]!='#':
                 if data[i+1][j]!='#' or data[i-1][j]!='#': # this is a junction where we'll place a node
@@ -132,19 +119,19 @@ for i,row in enumerate(data):
             if data[i][j]=='S': start=vertex
 
 for node,_ in enumerate(nodeconnections):
-    i=node//len(data)
-    j=node%len(data)
+    i=node//len(data[0])
+    j=node%len(data[0])
     
     if nodeconnections[node]:
         for connection in nodeconnections[node]:
-            # print(connection)
+            print(connection)
             distance=abs(connection[0]-i)+abs(connection[1]-j)
-            v=connection[0]*len(data)+connection[1]
-            # print(i,j,connection)
-            # print(node,v,distance)
+            v=connection[0]*len(data[0])+connection[1]
+            print(i,j,connection)
+            print(node,v,distance)
             g.add_edge(node, v, distance)
             # print(g.edges[node][v])
-            # print()
+            print()
             # print(len(nodeconnections[node]))
 
 print()
