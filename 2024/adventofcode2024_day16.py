@@ -259,3 +259,14 @@ for row in data:
 
 # printing this out let me see where things went sideways, especially printing it out with just the < in dijkstra. Not sure how to fix it but that's
 # more than enough time spent.
+
+# for future reference, this is where both parts had issues. This was generated with just the < in dijkstra, but my search for alternate paths in the 
+# part 2 section found alternate paths regardless, none of them correct, and the alternate paths are +4 from the correct path.
+
+# #.###.#.#.#.#####.#.
+# oooooo#...#ooooooooo
+# #.#o#o#####o#o#o###.
+# ..#o#ooooooo#o#o....
+# #.#o#####.#o#o#o####
+# ...ooooooooooooo#...
+# #.###.#.#.#.#.###.#.
