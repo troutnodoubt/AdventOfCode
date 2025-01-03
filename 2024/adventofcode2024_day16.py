@@ -11,6 +11,7 @@ fname='input_day16.txt'
 # fname='example_day_16h.txt' # open grid for giggles
 # fname='example_day_16i.txt' # open grid for giggles
 # fname='example_day_16j.txt' # open grid for giggles
+# fname='example_day16cross.txt' # some crosses thrown in
 
 
 with open(fname) as fp: data = fp.read().splitlines()
@@ -55,8 +56,8 @@ class Graph:
         self.edges[v][u] = distance
         
 def dijkstra(graph, start_vertex):
-    D = {v:[[float('inf'),(0,0)]] for v in range(graph.v)}
-    D[start_vertex] = [[0,(0,1)]] #cost, heading
+    D = {v:[[float('inf'),(0,0),[]]] for v in range(graph.v)}
+    D[start_vertex] = [[0,(0,1),[]]] #cost, heading, parent
     
     turn=0
     nturns=0
@@ -83,11 +84,11 @@ def dijkstra(graph, start_vertex):
                     neighbor_j=neighbor%len(data[0])
                     new_heading=((neighbor_i-current_i)//distance,(neighbor_j-current_j)//distance)
                     for idx,option in enumerate(D[current_vertex]): 
-                        p=False
+                        p=True
                         if len(D[current_vertex])>2: p=True
                         
                       
-                        tmp_cost,heading=D[current_vertex][idx]
+                        tmp_cost,heading,_=D[current_vertex][idx]
                         if p:
                             print()
                             print(D[current_vertex],tmp_cost,heading,current_vertex,neighbor,new_heading)
@@ -95,15 +96,16 @@ def dijkstra(graph, start_vertex):
                             if new_heading[0]==heading[0] or new_heading[1]==heading[1]: turn=2000 #180 degree turn
                             else: turn=1000
                         elif new_heading==heading: turn=0
-                        old_cost,_ = D[neighbor][0]
+                        # old_cost,_,_ = D[neighbor][0]
                         tmp_cost += distance + turn
-                        acost=min([cost for cost,heading in D[neighbor]])
-                        if acost!=old_cost: print('cost error',current_vertex,neighbor)
+                        old_cost=min([cost for cost,heading,_ in D[neighbor]])
+                        # old_cost=acost
+                        # if acost!=old_cost: print('cost error',current_vertex,neighbor)
                         if tmp_cost<new_cost: new_cost=tmp_cost
                         if p: 
                             print(D[neighbor])
                             print(distance)
-                            print(acost,acost==old_cost)
+                            # print(acost,acost==old_cost)
                             print(old_cost,tmp_cost,new_cost)
                     if new_cost < old_cost:# and new_cost%1000!=old_cost%1000:
                         # print(new_cost,new_heading,neighbor)
@@ -111,16 +113,17 @@ def dijkstra(graph, start_vertex):
                         # print()
                         pq.put((new_cost, neighbor))
                         # print(pq.queue)
-                        D[neighbor] = [[new_cost,new_heading]]
+                        D[neighbor] = [[new_cost,new_heading,current_vertex]]
                     elif neighbor in D.keys():
                         # print(D[neighbor])
                         
-                        if [new_cost,new_heading] not in D[neighbor]: D[neighbor].append([new_cost,new_heading])
+                        if [new_cost,new_heading,current_vertex] not in D[neighbor]: D[neighbor].append([new_cost,new_heading,current_vertex])
                         # print(len(D[neighbor]))
                         # if len(D[neighbor])<4: pq.put((new_cost, neighbor))
     
     return D
 
+print('initializing')
 nvertices=len(data)*len(data[0])
 nodeconnections=[[] for _ in range(nvertices)]
 start=[]
@@ -128,11 +131,12 @@ end=[]
 
 g=Graph(nvertices)
 
+print('through grid once to generate node connections')
 for i,row in enumerate(data):
     for j,pos in enumerate(row):
         vertex=i*len(data[0])+j
         if data[i][j]!='#':
-            print(i,j,vertex)
+            # print(i,j,vertex)
             if data[i][j-1]!='#' or data[i][j+1]!='#':
                 if data[i+1][j]!='#' or data[i-1][j]!='#': # this is a junction where we'll place a node
                     # move left, right, up, and down and find its neighboring node
@@ -142,6 +146,7 @@ for i,row in enumerate(data):
             if data[i][j]=='E': end=vertex
             if data[i][j]=='S': start=vertex
 
+print('translating node connections into graph edges')
 for node,_ in enumerate(nodeconnections):
     i=node//len(data[0])
     j=node%len(data[0])
@@ -160,15 +165,35 @@ for node,_ in enumerate(nodeconnections):
 
 print()
 print(start,end)
-dijk = dijkstra(g,start)[end]
-print(dijk)
-score=dijk[0][0]
+dijk = dijkstra(g,end)
+print(dijk[start])
+print(dijk[270])
+score=dijk[start][0][0]
 
 print(score) #68432 is too low. 72432, 76432 is too high. I bet I'm double counting turns somehow, so try others in increments of 1000
 
-for test in [18242,16266,830,430]:
-    print(test//len(data[0]),test%len(data[0]))
+
+path=[dijk[start][0]]
+parent=dijk[start][0][2]
+while parent!=end:
+    path.insert(0,dijk[parent][0])
+    parent=path[0][2]
+
+# nodesonly=[a[2] for a in path]
+# print(nodesonly)
+# print('18242',18242 in nodesonly)
+# print('16266',16266 in nodesonly)
+# print('830',    830 in nodesonly)
+# print('430',    430 in nodesonly)
+# print()
+for a in path: print(a)
+# for test in [18242,16266,830,430]:
+#     print(test//len(data[0]),test%len(data[0]))
 # some guy on reddit was off by 4 so I decided to try that, and sure enough I'm off by 4. 72428 is the correct answer. Don't understand why still.
+
+# I plotted the path that results from this, and the scoring is correct. I just am not finding the optimal path still. Went through several crosses
+# none of which were those I found earlier today. And none of those are on my path. Still suspicious of the crosses.
+
 # something to do with what happens if you come to a cross, and considering the path from there to be from the lowest value, not just the value you came from?
 # A cross test case from here works though. https://www.reddit.com/r/adventofcode/comments/1hfiony/advent_of_code_2024_day_16_part_1_using_dijkstra/
 # Might need to try on the cross I identified in the puzzle input. Towards the bottom left.
