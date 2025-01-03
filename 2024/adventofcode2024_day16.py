@@ -264,7 +264,7 @@ for row in data:
 # part 2 section found alternate paths regardless, none of them correct, and the alternate paths are +4 from the correct path.
 
 # #.###.#.#.#.#####.#.
-# oooooo#...#ooooooooo
+# Sooooo#...#ooooooooE
 # #.#o#o#####o#o#o###.
 # ..#o#ooooooo#o#o....
 # #.#o#####.#o#o#o####
