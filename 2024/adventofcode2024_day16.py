@@ -5,7 +5,7 @@ fname='input_day16.txt'
 # fname='example_day16b.txt'  # 11048
 
 with open(fname) as fp: data = fp.read().splitlines()
-
+visited=set()
 def findNeighbor(node,direction):
     neighborFound=False
     if   direction=='N': 
@@ -42,6 +42,8 @@ class Graph:
         self.graph[node1][node2]=distance
     
     def shortest_distances(self, source: str):
+        parents = {}
+
         distances = {node: float("inf") for node in self.graph}
         distances[source] = 0  
 
@@ -55,16 +57,68 @@ class Graph:
             if current_node in visited:
                 continue  
             visited.add(current_node)
-
-            for neighbor, weight in self.graph[current_node].items():
-                if neighbor in distances.keys():
-                    tentative_distance = current_distance + weight
-                    if tentative_distance <= distances[neighbor]:
-                        distances[neighbor] = tentative_distance
-                        pq.put((tentative_distance, neighbor))
+            if current_node in self.graph.keys():
+                for neighbor, weight in self.graph[current_node].items():
+                    if neighbor in distances.keys():
+                        tentative_distance = current_distance + weight
+                        if tentative_distance < distances[neighbor]:
+                            distances[neighbor] = tentative_distance
+                            if neighbor not in parents.keys(): parents[neighbor] = [current_node]
+                            else: parents[neighbor].append(current_node)
+                            pq.put((tentative_distance, neighbor))
                         
-        return distances
-    
+        return distances,parents
+
+def getShortestPath(parents,destination,source):
+   
+    shortest=destination
+    path=[shortest]
+    while shortest!=source:
+        path.append(parents[shortest][0])
+        # print(shortest, parents[shortest], int(shortest[:-1])//len(data[0]),int(shortest[:-1])%len(data[0]))
+        shortest=parents[shortest][0]
+    return path
+
+def findBranches(parents,path):
+    nodeset=set(path)
+    branchnodes=set()
+    for node in path:
+        if node in parents.keys(): 
+            nodeparents=parents[node]
+            # print(node,nodeparents)
+            for nodeparent in nodeparents:
+                # print(node,nodeparent)
+                if nodeparent not in nodeset:
+                    branchnodes.add(nodeparent)
+    return branchnodes
+
+def findNextNodes(parents,branches,source):
+    nextNodes=set()
+    for branch in branches:
+        if branch not in visited: 
+            bestpath=getShortestPath(parents,branch,source)
+            nextbranches=findBranches(parents,bestpath)
+            nextNodes.update(nextbranches)
+            # exploreBranches(parents,nextbranches,source)
+    return nextNodes
+
+def findIntermediateNodes(node1,node2):
+    connections=[]
+    i1=node1//len(data[0])
+    i2=node2//len(data[0])
+    j1=node1%len(data[0])
+    j2=node2%len(data[0])
+    if i1!=i2 and j1!=j2: return []
+    elif i1==i2 and j1!=j2:
+        start=min(j1,j2)
+        stop=max(j1,j2)+1
+        connections=[i1*len(data[0])+j for j in range(start,stop)]
+    elif i1!=i2 and j1==j2:
+        start=min(i1,i2)
+        stop=max(i1,i2)+1
+        connections=[i*len(data[0])+j1 for i in range(start,stop)]
+    return connections
+
 nodeconnections={}
 opposite={}
 opposite['N']='S'
@@ -73,7 +127,7 @@ opposite['E']='W'
 opposite['W']='E'
 start=[]
 end=[]
-
+simplenodes={}
 for i,row in enumerate(data):
     for j,pos in enumerate(row):
         vertex=i*len(data[0])+j
@@ -87,6 +141,8 @@ for i,row in enumerate(data):
                             nodekey=str(vertex)+direction
                             connectingNode=str(nextnode[0]*len(data[0])+nextnode[1])+opposite[direction]
                             nodeconnections[nodekey]=connectingNode
+                            if vertex not in simplenodes.keys(): simplenodes[vertex]=[nextnode[0]*len(data[0])+nextnode[1]]
+                            else: simplenodes[vertex].append(nextnode[0]*len(data[0])+nextnode[1])
             if data[i][j]=='E': end=vertex
             if data[i][j]=='S': start=vertex
 
@@ -124,12 +180,82 @@ for nodeAndDir in nodeconnections.keys():
         g.add_edge(nodeAndDir, str(node)+'S', 1000)
         g.add_edge(nodeAndDir, str(node)+'N', 1000)
          
-scores=g.shortest_distances(source)
+scores,parents=g.shortest_distances(source)
 
 minscore=float('inf')
+shortest=[]
 for destination in destinations:
     if destination in scores.keys():
         # print(destination,scores[destination])
-        if scores[destination]<minscore: minscore=scores[destination]
+        if scores[destination]<minscore: 
+            minscore=scores[destination]
+            shortest=destination
 
 print('Part 1', minscore)
+print()
+
+bestpath=getShortestPath(parents,shortest,source)
+visited.update(set(bestpath))
+# print(visited)
+branches=findBranches(parents,bestpath)
+# print(branches)
+branches=set([branch for branch in branches if branch not in visited])
+# print(branches)
+nextnodes=findNextNodes(parents,branches,source)
+# print(nextnodes)
+
+while True:
+    emptysets=[]
+    for node in nextnodes:
+        # print(node)
+        bestpath=getShortestPath(parents,node,source)
+        # print(bestpath)
+        # print()
+        visited.update(set(bestpath))
+        # print(visited)
+        branches=findBranches(parents,bestpath)
+        # print(branches)
+        branches=set([branch for branch in branches if branch not in visited])
+        # print(branches)
+        nextnodes=findNextNodes(parents,branches,source)
+        # print(nextnodes)
+        emptysets.append(len(nextnodes)==0)
+        # print()
+    if all(emptysets): break
+
+# print(visited)
+
+
+# strip off the directions
+numbersonly=set()
+for node in visited:
+    numbersonly.add(int(node[:-1]))
+
+# print(numbersonly)
+
+coveredspaces=set()
+# print(simplenodes)
+for n in numbersonly:
+    # i=n//len(data[0])
+    # j=n%len(data[0])
+    # # print(n//len(data[0]),n%len(data[0]))
+    # data[i]=data[i][:j]+'o'+data[i][j+1:]
+    for neighbor in simplenodes[n]:
+        if neighbor in numbersonly:
+            # print(findIntermediateNodes(n,neighbor))
+            coveredspaces.update(set(findIntermediateNodes(n,neighbor)))
+            # coveredspaces.add(a for a in findIntermediateNodes(n,neighbor))
+
+for n in coveredspaces:
+    i=n//len(data[0])
+    j=n%len(data[0])
+    # print(n//len(data[0]),n%len(data[0]))
+    data[i]=data[i][:j]+'o'+data[i][j+1:]
+
+print('Part 2',len(coveredspaces)) #485 too high 481 too high, 477 too high
+
+for row in data:
+    print(row)
+
+# printing this out let me see where things went sideways, especially printing it out with just the < in dijkstra. Not sure how to fix it but that's
+# more than enough time spent.
