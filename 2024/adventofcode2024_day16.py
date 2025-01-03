@@ -59,7 +59,7 @@ class Graph:
             for neighbor, weight in self.graph[current_node].items():
                 if neighbor in distances.keys():
                     tentative_distance = current_distance + weight
-                    if tentative_distance < distances[neighbor]:
+                    if tentative_distance <= distances[neighbor]:
                         distances[neighbor] = tentative_distance
                         pq.put((tentative_distance, neighbor))
                         
