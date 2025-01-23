@@ -6,15 +6,23 @@ int main(void){
     char prev_ch;
     int ndq=0;
     int nescape=0;
+    int escaped=0;
+    int newliteral=0;
+    char *filename;
 
-    if ( (fp=fopen("input_day8.txt","r")) == NULL){
+    filename="input_day8.txt";
+    // filename="example_day8.txt";
+
+    if ( (fp=fopen(filename,"r")) == NULL){
         printf("Cannot open input file");
         return(1);
     }
 
     do {
         ch=getc(fp);
-        if (prev_ch=='\\'){
+        if ((ch=='\\') || (ch=='\"')) newliteral++;
+        if ((!escaped) && (prev_ch=='\\')){
+            escaped=1;
             if ((ch=='\\') || (ch=='\"')){
                 nescape++;
             }
@@ -22,12 +30,14 @@ int main(void){
                 nescape+=3;
             }
        }
-       else if ((prev_ch!='\\') && (ch=='\"')){
-        ndq++;
+       else {
+        escaped=0;
+        if (ch=='\"') ndq++;
        }
        prev_ch=ch;
     } while (ch!=EOF);
-    printf("%d %d\n", nescape, ndq);
-    printf("Part 1 is %d\n",nescape+ndq); // 1379 is too high. Many lines ending with \\", which will double escape. Need to handle that kind of case.
+    
+    printf("Part 1 is %d\n",nescape+ndq); 
+    printf("Part 2 is %d\n", ndq+newliteral);
     return(0);
 }
