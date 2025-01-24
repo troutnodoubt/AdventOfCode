@@ -23,20 +23,18 @@ int main(void){
         if ((ch=='\\') || (ch=='\"')) newliteral++;
         if ((!escaped) && (prev_ch=='\\')){
             escaped=1;
-            if ((ch=='\\') || (ch=='\"')){
-                nescape++;
-            }
-            else if (ch=='x'){
-                nescape+=3;
-            }
-       }
-       else {
-        escaped=0;
-        if (ch=='\"') ndq++;
-       }
-       prev_ch=ch;
+            if ((ch=='\\') || (ch=='\"')) nescape++;
+            else if (ch=='x') nescape+=3;
+        }
+        else {
+            escaped=0;
+            if (ch=='\"') ndq++;
+        }
+        prev_ch=ch;
     } while (ch!=EOF);
-    
+
+    fclose(fp);
+
     printf("Part 1 is %d\n",nescape+ndq); 
     printf("Part 2 is %d\n", ndq+newliteral);
     return(0);
