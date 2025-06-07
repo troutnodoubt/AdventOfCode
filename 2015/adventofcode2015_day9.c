@@ -47,24 +47,34 @@ int main(void){
     // char *input_file="C:\\Users\\truta\\Documents\\git\\AdventOfCode\\2015\\example_day9.txt";
     char *input_file="example_day9.txt";
     char *cities[nmax];
-    char *source[50];
-    char *destination[50];
+    char start[50];
+    char end[50];
+    int distances[nmax*nmax];
     int distance=0;
     int startidx,endidx;
-    
+
+    for (int i=0;i<nmax;i++) {cities[i]=NULL;}
+    for (int i=0;i<(nmax*nmax);i++) {distances[i]=0;}
+
     if ((fp=fopen(input_file, "r"))==NULL){
         printf("Cannot open file\n");
         return 1;
     }
 
-    while (fscanf(fp,"%s to %s = %d",source,destination,&distance)!=EOF){
-        printf("%s %s %d\n",source,destination,distance);
-        startidx=isInArray(cities,source,nmax);
+    while (fscanf(fp,"%49s to %49s = %d",start,end,&distance)!=EOF){
+        printf("%s %s %d\n",start,end,distance);
+        startidx=isInArray(cities,start,nmax);
         printf("statidx %d\n", startidx);
-        if (startidx==-1) printf("add start"),addToCityArray(cities,source,nmax);
-        endidx=isInArray(cities,destination,  nmax);
+        if (startidx==-1) printf("add start"),addToCityArray(cities,start,nmax);
+        endidx=isInArray(cities,end,  nmax);
         printf("endidx %d\n", endidx);
-        if (endidx==-1) printf("add end"),addToCityArray(cities,destination,nmax);
+        if (endidx==-1) printf("add end"),addToCityArray(cities,end,nmax);
+
+        startidx=isInArray(cities,start,nmax);
+        endidx=isInArray(cities,end,nmax);
+
+        if (startidx!=-1 && endidx!=-1) addToDistanceArray(distances,distance,startidx,endidx,nmax);
+
         
         
     }
@@ -73,6 +83,13 @@ int main(void){
                 if (!cities[i])   break;
                 printf("%d %s\n", i,cities[i]); 
                     }
+
+
+    for (int i=0; i<nmax; i++){
+        for (int j=0; j<nmax; j++){
+            printf("%d, %d, %d\n", i, j, distances[i*nmax+j]);
+        }
+    }
                     
     fclose(fp);
     return 0;
