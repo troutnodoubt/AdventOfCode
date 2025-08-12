@@ -1,10 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <stdbool.h>
 
-void printCities(char **, int);
+// Traveling salesman problem
 
-int isInArray(char** testArray, char *test, int nmax){
+#define nmax 20
+
+void printCities(char **);
+
+int isInArray(char** testArray, char *test){
     for (int i=0; i<nmax; i++){
         if (!testArray[i]) break;
         if (strcmp(testArray[i],test)==0) return i;
@@ -12,27 +18,27 @@ int isInArray(char** testArray, char *test, int nmax){
     return -1;
 }
 
-int findArraySize(char** testArray, int nmax){
+int findArraySize(char** testArray){
     for (int i=0; i<nmax; i++){
         if (!testArray[i]) return i;
     }
     return -1;
 }
 
-void addToCityArray(char **Array, char *toAdd, int nmax){
-    int n=findArraySize(Array, nmax);
+void addToCityArray(char **Array, char *toAdd){
+    int n=findArraySize(Array);
     Array[n]=malloc((nmax+1)*sizeof(char));
-    if (n>0) strcpy(Array[n],toAdd);
+    strcpy(Array[n],toAdd);
 }
 
-void addToDistanceArray(int *Array, int d, int i, int j, int nmax){
+void addToDistanceArray(int Array[][nmax], int d, int i, int j){
     if (i>=0 && j>=0){
-        Array[nmax*i+j]=d;
-        Array[nmax*j+i]=d;
+        Array[i][j]=d;
+        Array[j][i]=d;
     }
 }
 
-void printCities(char **Array, int nmax){
+void printCities(char **Array){
     printf("\n*****\n");
     for (int i=0; i<nmax; i++){
         if (!Array[i]) break;
@@ -49,12 +55,18 @@ int main(void){
     char *cities[nmax];
     char start[50];
     char end[50];
-    int distances[nmax*nmax];
+    int distances[nmax][nmax];
     int distance=0;
     int startidx,endidx;
+    int ncities;
 
     for (int i=0;i<nmax;i++) {cities[i]=NULL;}
-    for (int i=0;i<(nmax*nmax);i++) {distances[i]=0;}
+    for (int i=0;i<nmax;i++) {
+        for (int j=0;j<nmax;j++) {
+            distances[i][j]=0;
+        }
+    }
+
 
     if ((fp=fopen(input_file, "r"))==NULL){
         printf("Cannot open file\n");
@@ -62,32 +74,32 @@ int main(void){
     }
 
     while (fscanf(fp,"%49s to %49s = %d",start,end,&distance)!=EOF){
-        printf("%s %s %d\n",start,end,distance);
-        startidx=isInArray(cities,start,nmax);
-        printf("statidx %d\n", startidx);
-        if (startidx==-1) printf("add start"),addToCityArray(cities,start,nmax);
-        endidx=isInArray(cities,end,  nmax);
-        printf("endidx %d\n", endidx);
-        if (endidx==-1) printf("add end"),addToCityArray(cities,end,nmax);
+        //printf("%s %s %d\n",start,end,distance);
+        startidx=isInArray(cities,start);
+        //printf("statidx %d\n", startidx);
+        if (startidx==-1) addToCityArray(cities,start);
+        endidx=isInArray(cities,end);
+        // printf("endidx %d\n", endidx);
+        if (endidx==-1) addToCityArray(cities,end);
 
-        startidx=isInArray(cities,start,nmax);
-        endidx=isInArray(cities,end,nmax);
+        startidx=isInArray(cities,start);
+        endidx=isInArray(cities,end);
 
-        if (startidx!=-1 && endidx!=-1) addToDistanceArray(distances,distance,startidx,endidx,nmax);
-
-        
-        
+        if (startidx!=-1 && endidx!=-1) addToDistanceArray(distances,distance,startidx,endidx);       
     }
-     
-    for (int i=0;i<nmax;i++){
-                if (!cities[i])   break;
-                printf("%d %s\n", i,cities[i]); 
-                    }
+
+    ncities=findArraySize(cities);
+    if (ncities!=-1){
+        for (int i=0;i<ncities;i++){
+            if (!cities[i])   break;
+            printf("%d %s\n", i,cities[i]); 
+        }
 
 
-    for (int i=0; i<nmax; i++){
-        for (int j=0; j<nmax; j++){
-            printf("%d, %d, %d\n", i, j, distances[i*nmax+j]);
+        for (int i=0; i<ncities; i++){
+            for (int j=0; j<ncities; j++){
+                printf("%d, %d, %d\n", i, j, distances[i][j]);
+            }
         }
     }
                     
