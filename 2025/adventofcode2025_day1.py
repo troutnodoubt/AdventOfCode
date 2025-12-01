@@ -34,18 +34,15 @@ def countAll(position,rotation):
 
 pos=50
 zerocount=0
+pos2=50
+zerocount2=0
 
 for rotation in data:
     pos = newPos(pos,rotation)
     if pos == 0: zerocount+=1
 
+    [pos2,zeros]=countAll(pos2,rotation)
+    zerocount2+=zeros
+
 print('Part 1 is',zerocount)
-
-pos=50
-zerocount=0
-
-for rotation in data:    
-    [pos,zeros]=countAll(pos,rotation)
-    zerocount+=zeros
-
-print('Part 2 is',zerocount)
+print('Part 2 is',zerocount2)
