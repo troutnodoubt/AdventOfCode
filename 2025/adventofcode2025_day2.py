@@ -16,11 +16,9 @@ def isValid2(ID):
         if ID.count(chunk)>1 and ID.count(chunk)*len(chunk) == len(ID): return False
     return True
 
-data = [rng.split(',') for rng in data]
-
 total=0
 total2=0
-for rng in data[0]:
+for rng in data[0].split(','):
     for test in range(int(rng.split('-')[0]),int(rng.split('-')[1])+1):
         if not isValid(test): total+=test
         if not isValid2(test): total2+=test
