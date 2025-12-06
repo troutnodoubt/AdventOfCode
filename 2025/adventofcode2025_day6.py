@@ -25,25 +25,19 @@ for colnum in range(len(data[0])):
         tmprow.append(int(tmpstr))
     else: 
         tmparray=np.array(tmprow)
-        print(tmparray,operators[0])
         if operators2[0]=='+': 
-            print(sum(tmparray))
             total2+=sum(tmparray)
             operators2.pop(0)
         elif operators2[0]=='*': 
-            print(np.prod(tmparray))
             total2+=np.prod(tmparray) 
             operators2.pop(0)
         tmprow=[]
 
 tmparray=np.array(tmprow)
-print(tmparray,operators[0])
 if operators2[0]=='+': 
-    print(sum(tmparray))
     total2+=sum(tmparray)
     operators2.pop(0)
 elif operators2[0]=='*': 
-    print(np.prod(tmparray))
     total2+=np.prod(tmparray) 
     operators2.pop(0)  
 
