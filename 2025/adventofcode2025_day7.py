@@ -76,11 +76,11 @@ for row in range(len(data),0,-1):
                     print(child,hasSplittingDescendants(child))
                     print(child in splits.keys()) # on the right track, but keys to the right haven't processed yet
 
-Need to do this in steps:
-1. Populate last row (done)
-2. Propagate values up to next row
-3. Populate splitting cells
-4. Repeat 2 and 4 until done
+# Need to do this in steps:
+# 1. Populate last row (done)
+# 2. Propagate values up to next row
+# 3. Populate splitting cells
+# 4. Repeat 2 and 4 until done
 
 
 
