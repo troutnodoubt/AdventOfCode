@@ -91,38 +91,28 @@ for row in data:
     for col in range(0,ncols-1):
         if np.count_nonzero(A[:,col])>1: toAdd.append(col)
    
-    its1=itertools.combinations_with_replacement(possibilities,len(toAdd))
-    its=itertools.permutations(possibilities,len(toAdd))
+    its=itertools.combinations_with_replacement(possibilities,len(toAdd))
     
     minpress=99999
-    for it in its:
-        B=np.copy(A)
-        for i,col in enumerate(toAdd):
-            newrow=np.zeros(ncols,dtype=int)
-            newrow[-1]=int(it[i])
-            newrow[col]=1
-            B=np.vstack([B,newrow])
-        
-        B=sympy.Matrix(B)
-        B=B.rref()[0]
-        allInts=all([int(a)==a for a in list(B[:,-1])])
-        if all(np.array(B[:,-1])>=0) and allInts: 
-            if np.array(B[:,-1]).sum()<minpress:
-                minpress = np.array(B[:,-1]).sum()
-    for it in its1:
-        B=np.copy(A)
-        for i,col in enumerate(toAdd):
-            newrow=np.zeros(ncols,dtype=int)
-            newrow[-1]=int(it[i])
-            newrow[col]=1
-            B=np.vstack([B,newrow])
-        
-        B=sympy.Matrix(B)
-        B=B.rref()[0]
-        allInts=all([int(a)==a for a in list(B[:,-1])])
-        if all(np.array(B[:,-1])>=0) and allInts: 
-            if np.array(B[:,-1]).sum()<minpress:
-                minpress = np.array(B[:,-1]).sum()
+    tested=[]
+    for comb in its:
+        for it in itertools.permutations(comb):
+            if it not in tested:
+                tested.append(it)
+                B=np.copy(A)
+                for i,col in enumerate(toAdd):
+                    newrow=np.zeros(ncols,dtype=int)
+                    newrow[-1]=int(it[i])
+                    newrow[col]=1
+                    B=np.vstack([B,newrow])
+                
+                B=sympy.Matrix(B)
+                B=B.rref()[0]
+                allInts=all([int(a)==a for a in list(B[:,-1])])
+                if all(np.array(B[:,-1])>=0) and allInts: 
+                    if np.array(B[:,-1]).sum()<minpress:
+                        minpress = np.array(B[:,-1]).sum()
+                        
     print(minpress)
     if minpress==99999: break
     print()
