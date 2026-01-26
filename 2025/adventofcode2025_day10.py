@@ -86,16 +86,16 @@ for row in data:
     else:
         maxVal=int(np.max(A[:,-1]))+1
 
-    minVal=0 #np.min(A[:,-1])
+    minVal=0
     possibilities=range(minVal,maxVal+1)
     for col in range(0,ncols-1):
         if np.count_nonzero(A[:,col])>1: toAdd.append(col)
    
-    its=itertools.combinations_with_replacement(possibilities,len(toAdd))
+    combs=itertools.combinations_with_replacement(possibilities,len(toAdd))
     
     minpress=99999
     tested=[]
-    for comb in its:
+    for comb in combs:
         for it in itertools.permutations(comb):
             if it not in tested:
                 tested.append(it)
