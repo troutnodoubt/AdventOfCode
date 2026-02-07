@@ -18,7 +18,6 @@ int main(void){
     int sign=1;
     char *filename;
     char number[20]="";
-    int openbraces=0;
     int stackIdx=-1;
     int isRed=0;
   
@@ -35,7 +34,6 @@ int main(void){
     do {
         ch=getc(fp);
         if ('{'==ch){
-            openbraces++;
             stackIdx++;
             stack[stackIdx].tmpTotal=0;
             stack[stackIdx].isRed=0;
@@ -79,7 +77,6 @@ int main(void){
         twoprevch=prevch;
         prevch=ch;
     } while (ch!=EOF);
-    // printf("Number of braces %d\n",openbraces);
     fclose(fp);
 
     printf("Part 1 is %d\n",total); 
