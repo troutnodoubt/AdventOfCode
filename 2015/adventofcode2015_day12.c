@@ -6,7 +6,6 @@
 typedef struct {
     int tmpTotal;
     int isRed;
-    int isObject;
     int isArray;
 } stack;
 
@@ -40,7 +39,6 @@ int main(void){
             stackIdx++;
             stack[stackIdx].tmpTotal=0;
             stack[stackIdx].isRed=0;
-            stack[stackIdx].isObject=1;
             stack[stackIdx].isArray=0;
             
         }
@@ -48,7 +46,6 @@ int main(void){
             stackIdx++;
             stack[stackIdx].tmpTotal=0;
             stack[stackIdx].isRed=0;
-            stack[stackIdx].isObject=0;
             stack[stackIdx].isArray=1;            
         }
         
@@ -78,7 +75,7 @@ int main(void){
                 stack[stackIdx].tmpTotal+=stack[stackIdx+1].tmpTotal; 
             }           
         }
-        
+
         twoprevch=prevch;
         prevch=ch;
     } while (ch!=EOF);
